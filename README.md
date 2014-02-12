@@ -1,6 +1,6 @@
 # Flappy Block made with JS
 
-![flappy_block_snapshot](http://cl.ly/image/0E1y3b2p2I11/content)
+![flappy_block_snapshot](http://cl.ly/image/3M0P3f0z0M1a/content)
 
 # Credits
 
