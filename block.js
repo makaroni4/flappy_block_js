@@ -91,7 +91,6 @@ Wall = {
 
     this.pos[0] += this.vel[0] * dt;
     this.pos[1] += this.vel[1] * dt;
-    console.log(this.pos[0]);
 
     if (this.pos[0] < -100) {
       this.pos = [gCanvas.width, gCanvas.height];
