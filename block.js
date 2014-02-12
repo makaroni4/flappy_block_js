@@ -174,8 +174,8 @@ function updateGame() {
   checkCollision(gWalls, gBlock);
 }
 
-var myEl = document.getElementById('gamecanvas');
-myEl.addEventListener('click', function () {
+var body = document.getElementsByTagName("body")[0];
+body.addEventListener('click', function () {
   gBlock["vel"][1] -= 300;
 }, false);
 

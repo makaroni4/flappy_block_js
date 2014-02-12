@@ -1,14 +1,23 @@
 <html>
   <head>
     <style type="text/css">
-      #walls_count {
+      body {
         font: 42px Avenir, Helvetica, Arial, sans-serif;
-        color: #e1e1e1;
-        text-align: right;
         -moz-user-select: none;
         -khtml-user-select: none;
         -webkit-user-select: none;
         -o-user-select: none;
+      }
+
+      #walls_count {
+        color: #e1e1e1;
+        text-align: right;
+      }
+
+      #hint {
+        text-align: center;
+        font-size: 30px;
+        color: #e1e1e1;
       }
 
       #container {
@@ -26,6 +35,7 @@
     <div id="container">
       <canvas width="700" height="420" id="gamecanvas"></canvas>
     </div>
+    <div id="hint">Control block by clicking anywhere on the page.</div>
   </body>
   <script type="text/javascript" src="block.js"></script>
   <script type="text/javascript">
