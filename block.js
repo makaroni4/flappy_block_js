@@ -94,7 +94,7 @@ Wall = {
 
     if (this.pos[0] < -100) {
       this.pos = [gCanvas.width, gCanvas.height];
-      gWall.hole_position = getRandomInt(0, 200);
+      this.hole_position = getRandomInt(0, 200);
     }
   },
   draw: function (dt) {
@@ -195,7 +195,6 @@ function restartGame() {
   gContext.clearRect(0, 0, gCanvas.width, gCanvas.height);
 
   gBlock = null;
-  gWall = null;
   gWalls = null;
   stop_time = false;
   walls_count = 0;
