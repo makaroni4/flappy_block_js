@@ -59,33 +59,28 @@ function snapback(original, current) {
 }
 
 
-Walls = {
-  init: function (walls) {
-    this.walls = walls;
-  },
-  update: function (dt) {
+function Walls(walls) {
+  this.walls = walls,
+  this.update = function (dt) {
     this.walls.forEach(function (wall) {
       wall.update(dt);
     })
   },
-  draw: function (dt) {
+  this.draw = function (dt) {
     this.walls.forEach(function (wall) {
       wall.draw(dt);
     })
   }
 };
 
-Wall = {
-  init: function (pos, size, color) {
-    this.pos = pos;
-    this.size = size;
-    this.hole_position = getRandomInt(0, 200);
-    this.color = color;
-
-    this.vel = [-70, 0];
-    this.originalsize = size;
-  },
-  update: function (dt) {
+function Wall (pos, size, color) {
+  this.pos = pos,
+  this.size = size,
+  this.hole_position = getRandomInt(0, 200),
+  this.color = color,
+  this.vel = [-70, 0],
+  this.originalsize = size,
+  this.update = function (dt) {
     this.size[0] = this.snapback(this.originalsize[0], this.size[0]);
     this.size[1] = this.snapback(this.originalsize[1], this.size[1]);
 
@@ -97,24 +92,21 @@ Wall = {
       this.hole_position = getRandomInt(0, 200);
     }
   },
-  draw: function (dt) {
+  this.draw = function (dt) {
     var drawpos = [this.pos[0], this.pos[1] - this.size[1]];
     drawRect(gContext, drawpos[0], 0, this.size[0], this.hole_position, this.color);
     drawRect(gContext, drawpos[0], this.hole_position + 200, this.size[0], this.size[1], this.color);
   },
-  snapback: snapback
-};
+  this.snapback = snapback
+}
 
-Block = {
-  init: function (pos, size, color) {
-    this.pos = pos;
-    this.size = size;
-    this.color = color;
-
-    this.vel = [0, 0];
-    this.originalsize = size;
-  },
-  update: function (dt) {
+function Block (pos, size, color) {
+  this.pos = pos,
+  this.size = size,
+  this.color = color,
+  this.vel = [0, 0],
+  this.originalsize = size,
+  this.update = function (dt) {
     this.size[0] = this.snapback(this.originalsize[0], this.size[0]);
     this.size[1] = this.snapback(this.originalsize[1], this.size[1]);
 
@@ -137,14 +129,14 @@ Block = {
       this.squish();
     }
   },
-  draw: function (dt) {
+  this.draw = function (dt) {
     var drawpos = [this.pos[0], this.pos[1] - this.size[1]];
     drawRect(gContext, drawpos[0], drawpos[1], this.size[0], this.size[1], this.color);
   },
-  squish: function () {
+  this.squish = function () {
     this.size = [this.size[0] * 1.5, this.size[1] * 0.5];
   },
-  snapback: snapback
+  this.snapback = snapback
 };
 
 var gCanvas = document.getElementById('gamecanvas');
@@ -153,8 +145,7 @@ var gContext = gCanvas.getContext('2d');
 function initWall(shift) {
   var pos = [gCanvas.width + shift, gCanvas.height];
   var size = [100, gCanvas.height];
-  var wall = Object.create(Wall);
-  wall.init(pos, size, 'green');
+  var wall = new Wall(pos, size, 'green');
   return wall;
 }
 
@@ -166,8 +157,7 @@ function updateGame() {
   } else {
     var pos = [gCanvas.width * 2 / 5, gCanvas.height * Math.random()];
     var size = [30, 40];
-    gBlock = Object.create(Block);
-    gBlock.init(pos, size, 'red');
+    gBlock = new Block(pos, size, 'red');
   }
 
   checkCollision(gWalls, gBlock);
@@ -204,8 +194,7 @@ function restartGame() {
   for (var i = 0; i < 4; i++) {
     wallsArray.push(initWall(i * 200));
   };
-  gWalls = Object.create(Walls);
-  gWalls.init(wallsArray);
+  gWalls = new Walls(wallsArray);
   setCounter(walls_count);
 }
 
