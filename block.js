@@ -106,6 +106,8 @@ function Block (pos, size, color) {
 
 function Game() {
   this.stop_time = false,
+  this.enter_wall = [],
+  this.walls_count = 0,
   this.initBlock = function() {
     var pos = [gCanvas.width * 2 / 5, gCanvas.height * Math.random()];
     var size = [30, 40];
@@ -130,9 +132,9 @@ function Game() {
   this.restart = function() {
     gContext.clearRect(0, 0, gCanvas.width, gCanvas.height);
     this.stop_time = false;
-    walls_count = 0;
+    this.walls_count = 0;
     setCounter(0);
-    enter_wall = [];
+    this.enter_wall = [];
     this.gWalls = this.initWalls();
   },
   this.draw = function() {
@@ -155,11 +157,11 @@ function Game() {
 
       if (that.gBlock.pos[0] + that.gBlock.size[0] > wall.pos[0] && wall.pos[0] + wall.size[0] > that.gBlock.pos[0]) {
         if (wall.hole_position < that.gBlock.pos[1] - that.gBlock.size[1] && that.gBlock.pos[1] < wall.hole_position + 200) {
-          enter_wall[wall_index] = true;
+          that.enter_wall[wall_index] = true;
         } else {
           that.stop_time = true;
 
-          var r = confirm("You passed " + walls_count + " walls! Play again?");
+          var r = confirm("You passed " + that.walls_count + " walls! Play again?");
           if (r == true) {
               game.restart();
           } else {
@@ -171,10 +173,10 @@ function Game() {
 
 
       } else {
-        if (enter_wall[wall_index]) {
-          walls_count++;
-          setCounter(walls_count);
-          enter_wall[wall_index] = false;
+        if (that.enter_wall[wall_index]) {
+          that.walls_count++;
+          setCounter(that.walls_count);
+          that.enter_wall[wall_index] = false;
         }
       }
     })
@@ -189,9 +191,6 @@ function Game() {
   }
 }
 
-var gCanvas = document.getElementById('gamecanvas');
-var gContext = gCanvas.getContext('2d');
-
 var body = document.getElementsByTagName("body")[0];
 body.addEventListener('mousedown', function () {
   game.gBlock["vel"][1] -= 300;
@@ -201,8 +200,8 @@ body.addEventListener('touchstart', function () {
   game.gBlock["vel"][1] -= 300;
 }, false);
 
-enter_wall = [];
-walls_count = 0;
+var gCanvas = document.getElementById('gamecanvas');
+var gContext = gCanvas.getContext('2d');
 game = new Game();
 game.restart();
 
