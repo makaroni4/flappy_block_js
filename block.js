@@ -156,6 +156,10 @@ body.addEventListener('mousedown', function () {
   game.gBlock["vel"][1] -= 300;
 }, false);
 
+body.addEventListener('touchstart', function () {
+  game.gBlock["vel"][1] -= 300;
+}, false);
+
 
 
 function Game() {
