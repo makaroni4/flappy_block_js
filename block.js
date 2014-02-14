@@ -164,7 +164,7 @@ function updateGame() {
 }
 
 var body = document.getElementsByTagName("body")[0];
-body.addEventListener('click', function () {
+body.addEventListener('mousedown', function () {
   gBlock["vel"][1] -= 300;
 }, false);
 
