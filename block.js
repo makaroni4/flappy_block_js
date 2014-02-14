@@ -23,11 +23,11 @@ function checkCollision(walls, block) {
       } else {
         stop_time = true;
 
-        var r = confirm("You hit " + walls_count + " walls! Play again?");
+        var r = confirm("You passed " + walls_count + " walls! Play again?");
         if (r == true) {
             restartGame();
         } else {
-            x = "You pressed Cancel!";
+            x = "Thank you for playing!";
         }
 
         return true;
