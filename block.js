@@ -25,7 +25,7 @@ function checkCollision(walls, block) {
 
         var r = confirm("You passed " + walls_count + " walls! Play again?");
         if (r == true) {
-            restartGame();
+            game.restart();
         } else {
             x = "Thank you for playing!";
         }
@@ -149,56 +149,65 @@ function initWall(shift) {
   return wall;
 }
 
-function updateGame() {
-  gWalls.update(dt);
 
-  if (gBlock) {
-    gBlock.update(dt);
-  } else {
-    var pos = [gCanvas.width * 2 / 5, gCanvas.height * Math.random()];
-    var size = [30, 40];
-    gBlock = new Block(pos, size, 'red');
-  }
-
-  checkCollision(gWalls, gBlock);
-}
 
 var body = document.getElementsByTagName("body")[0];
 body.addEventListener('mousedown', function () {
-  gBlock["vel"][1] -= 300;
+  game.gBlock["vel"][1] -= 300;
 }, false);
 
-function drawGame() {
-  gContext.fillStyle = "black";
-  gContext.fillRect(0, 0, gCanvas.width, gCanvas.height);
 
-  if (gWalls) {
-    gWalls.draw();
-  }
 
-  if (gBlock) {
-    gBlock.draw();
+function Game() {
+  this.initBlock = function() {
+    var pos = [gCanvas.width * 2 / 5, gCanvas.height * Math.random()];
+    var size = [30, 40];
+    return new Block(pos, size, 'red');
+  },
+  this.gBlock = this.initBlock(),
+  this.initWalls = function() {
+    var wallsArray = [];
+    for (var i = 0; i < 4; i++) {
+      wallsArray.push(initWall(i * 200));
+    }
+    this.gBlock = this.initBlock();
+    return new Walls(wallsArray);
+  },
+  this.gWalls = this.initWalls(),
+  this.restart = function() {
+    gContext.clearRect(0, 0, gCanvas.width, gCanvas.height);
+    stop_time = false;
+    walls_count = 0;
+    setCounter(0);
+    enter_wall = [];
+    this.gWalls = this.initWalls();
+  },
+  this.draw = function() {
+    gContext.fillStyle = "black";
+    gContext.fillRect(0, 0, gCanvas.width, gCanvas.height);
+
+    if (this.gWalls) {
+      this.gWalls.draw();
+    }
+
+    if (this.gBlock) {
+      this.gBlock.draw();
+    }
+  },
+  this.update = function() {
+    this.gWalls.update(dt);
+    this.gBlock.update(dt);
+
+    checkCollision(this.gWalls, this.gBlock);
   }
 }
 
-function restartGame() {
-  gContext.clearRect(0, 0, gCanvas.width, gCanvas.height);
+stop_time = false;
+enter_wall = [];
+walls_count = 0;
+game = new Game();
+game.restart();
 
-  gBlock = null;
-  gWalls = null;
-  stop_time = false;
-  walls_count = 0;
-  enter_wall = [];
-
-  wallsArray = []
-  for (var i = 0; i < 4; i++) {
-    wallsArray.push(initWall(i * 200));
-  };
-  gWalls = new Walls(wallsArray);
-  setCounter(walls_count);
-}
-
-restartGame();
 var gOldTime = Date.now();
 var gNewTime = null;
 
@@ -208,8 +217,8 @@ var mainloop = function () {
   gOldTime = gNewtime;
 
   if (stop_time == false) {
-    updateGame();
-    drawGame();
+    game.update();
+    game.draw();
   }
 };
 
