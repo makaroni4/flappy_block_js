@@ -12,40 +12,6 @@ function setCounter(count) {
   walls_counter.innerHTML = count;
 }
 
-function checkCollision(walls, block) {
-  var wall_index = 0;
-  walls.walls.forEach(function (wall) {
-    wall_index++;
-
-    if (block.pos[0] + block.size[0] > wall.pos[0] && wall.pos[0] + wall.size[0] > block.pos[0]) {
-      if (wall.hole_position < block.pos[1] - block.size[1] && block.pos[1] < wall.hole_position + 200) {
-        enter_wall[wall_index] = true;
-      } else {
-        stop_time = true;
-
-        var r = confirm("You passed " + walls_count + " walls! Play again?");
-        if (r == true) {
-            game.restart();
-        } else {
-            x = "Thank you for playing!";
-        }
-
-        return true;
-      }
-
-
-    } else {
-      if (enter_wall[wall_index]) {
-        walls_count++;
-        setCounter(walls_count);
-        enter_wall[wall_index] = false;
-      }
-    }
-  })
-
-  return false;
-}
-
 function snapback(original, current) {
   if (Math.abs(original - current) <= 2) {
     return current;
@@ -57,7 +23,6 @@ function snapback(original, current) {
     return current * 0.95;
   }
 }
-
 
 function Walls(walls) {
   this.walls = walls,
@@ -71,7 +36,7 @@ function Walls(walls) {
       wall.draw(dt);
     })
   }
-};
+}
 
 function Wall (pos, size, color) {
   this.pos = pos,
@@ -137,42 +102,26 @@ function Block (pos, size, color) {
     this.size = [this.size[0] * 1.5, this.size[1] * 0.5];
   },
   this.snapback = snapback
-};
-
-var gCanvas = document.getElementById('gamecanvas');
-var gContext = gCanvas.getContext('2d');
-
-function initWall(shift) {
-  var pos = [gCanvas.width + shift, gCanvas.height];
-  var size = [100, gCanvas.height];
-  var wall = new Wall(pos, size, 'green');
-  return wall;
 }
 
-
-
-var body = document.getElementsByTagName("body")[0];
-body.addEventListener('mousedown', function () {
-  game.gBlock["vel"][1] -= 300;
-}, false);
-
-body.addEventListener('touchstart', function () {
-  game.gBlock["vel"][1] -= 300;
-}, false);
-
-
-
 function Game() {
+  this.stop_time = false,
   this.initBlock = function() {
     var pos = [gCanvas.width * 2 / 5, gCanvas.height * Math.random()];
     var size = [30, 40];
     return new Block(pos, size, 'red');
   },
   this.gBlock = this.initBlock(),
+  this.initWall = function(shift) {
+    var pos = [gCanvas.width + shift, gCanvas.height];
+    var size = [100, gCanvas.height];
+    var wall = new Wall(pos, size, 'green');
+    return wall;
+  },
   this.initWalls = function() {
     var wallsArray = [];
     for (var i = 0; i < 4; i++) {
-      wallsArray.push(initWall(i * 200));
+      wallsArray.push(this.initWall(i * 200));
     }
     this.gBlock = this.initBlock();
     return new Walls(wallsArray);
@@ -180,7 +129,7 @@ function Game() {
   this.gWalls = this.initWalls(),
   this.restart = function() {
     gContext.clearRect(0, 0, gCanvas.width, gCanvas.height);
-    stop_time = false;
+    this.stop_time = false;
     walls_count = 0;
     setCounter(0);
     enter_wall = [];
@@ -198,29 +147,74 @@ function Game() {
       this.gBlock.draw();
     }
   },
+  this.checkCollision = function() {
+    var wall_index = 0;
+    var that = this;
+    this.gWalls.walls.forEach(function (wall) {
+      wall_index++;
+
+      if (that.gBlock.pos[0] + that.gBlock.size[0] > wall.pos[0] && wall.pos[0] + wall.size[0] > that.gBlock.pos[0]) {
+        if (wall.hole_position < that.gBlock.pos[1] - that.gBlock.size[1] && that.gBlock.pos[1] < wall.hole_position + 200) {
+          enter_wall[wall_index] = true;
+        } else {
+          that.stop_time = true;
+
+          var r = confirm("You passed " + walls_count + " walls! Play again?");
+          if (r == true) {
+              game.restart();
+          } else {
+              x = "Thank you for playing!";
+          }
+
+          return true;
+        }
+
+
+      } else {
+        if (enter_wall[wall_index]) {
+          walls_count++;
+          setCounter(walls_count);
+          enter_wall[wall_index] = false;
+        }
+      }
+    })
+
+    return false;
+  },
   this.update = function() {
     this.gWalls.update(dt);
     this.gBlock.update(dt);
 
-    checkCollision(this.gWalls, this.gBlock);
+    this.checkCollision();
   }
 }
 
-stop_time = false;
+var gCanvas = document.getElementById('gamecanvas');
+var gContext = gCanvas.getContext('2d');
+
+var body = document.getElementsByTagName("body")[0];
+body.addEventListener('mousedown', function () {
+  game.gBlock["vel"][1] -= 300;
+}, false);
+
+body.addEventListener('touchstart', function () {
+  game.gBlock["vel"][1] -= 300;
+}, false);
+
 enter_wall = [];
 walls_count = 0;
 game = new Game();
 game.restart();
 
-var gOldTime = Date.now();
+var old_time = Date.now();
 var gNewTime = null;
 
 var mainloop = function () {
-  gNewtime = Date.now();
-  dt = (gNewtime - gOldTime) / 1000;
-  gOldTime = gNewtime;
+  new_time = Date.now();
+  dt = (new_time - old_time) / 1000;
+  old_time = new_time;
 
-  if (stop_time == false) {
+  if (game.stop_time == false) {
     game.update();
     game.draw();
   }
