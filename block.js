@@ -38,12 +38,12 @@ function Walls(walls) {
   }
 }
 
-function Wall (pos, size, color) {
+function Wall (pos, size, color, speed) {
   this.pos = pos,
   this.size = size,
-  this.hole_position = getRandomInt(0, 200),
+  this.hole_position = getRandomInt(20, 200),
   this.color = color,
-  this.vel = [-70, 0],
+  this.vel = [speed, 0],
   this.originalsize = size,
   this.update = function (dt) {
     this.size[0] = this.snapback(this.originalsize[0], this.size[0]);
@@ -60,7 +60,7 @@ function Wall (pos, size, color) {
   this.draw = function (dt) {
     var drawpos = [this.pos[0], this.pos[1] - this.size[1]];
     drawRect(game.context, drawpos[0], 0, this.size[0], this.hole_position, this.color);
-    drawRect(game.context, drawpos[0], this.hole_position + 200, this.size[0], this.size[1], this.color);
+    drawRect(game.context, drawpos[0], this.hole_position + game.config.wall_hole_size, this.size[0], this.size[1], this.color);
   },
   this.snapback = snapback
 }
@@ -76,7 +76,7 @@ function Block (pos, size, color) {
     this.size[1] = this.snapback(this.originalsize[1], this.size[1]);
 
     if (this.pos[1] < game.canvas.height) {
-      this.vel[1] += 10;
+      this.vel[1] += game.config.free_fall_acceleration;
     }
 
     this.pos[0] += this.vel[0] * dt;
@@ -104,28 +104,29 @@ function Block (pos, size, color) {
   this.snapback = snapback
 }
 
-function Game(canvas) {
+function Game(canvas, config) {
   this.canvas = canvas,
+  this.config = config,
   this.context = this.canvas.getContext('2d'),
   this.stop_time = false,
   this.enter_wall = [],
   this.walls_count = 0,
   this.initBlock = function() {
-    var pos = [this.canvas.width * 2 / 5, this.canvas.height * Math.random()];
-    var size = [30, 40];
+    var pos = [this.config.init_block_x, this.canvas.height * Math.random()];
+    var size = this.config.block_size;
     return new Block(pos, size, 'red');
   },
   this.gBlock = this.initBlock(),
   this.initWall = function(shift) {
     var pos = [this.canvas.width + shift, this.canvas.height];
-    var size = [100, this.canvas.height];
-    var wall = new Wall(pos, size, 'green');
+    var size = this.config.wall_size;
+    var wall = new Wall(pos, size, 'green', this.config.wall_speed);
     return wall;
   },
   this.initWalls = function() {
     var wallsArray = [];
     for (var i = 0; i < 4; i++) {
-      wallsArray.push(this.initWall(i * 200));
+      wallsArray.push(this.initWall(i * this.config.wall_gap));
     }
     this.gBlock = this.initBlock();
     return new Walls(wallsArray);
@@ -188,13 +189,12 @@ function Game(canvas) {
   this.update = function() {
     this.gWalls.update(dt);
     this.gBlock.update(dt);
-
     this.checkCollision();
   }
 }
 
 function flapBlock() {
-  game.gBlock["vel"][1] -= 300;
+  game.gBlock["vel"][1] -= game.config.flap_speed_gain;
 }
 
 var body = document.getElementsByTagName("body")[0];
@@ -202,7 +202,18 @@ body.addEventListener('mousedown', flapBlock, false);
 body.addEventListener('touchstart', flapBlock, false);
 
 var canvas = document.getElementById('gamecanvas');
-game = new Game(canvas);
+var config = {};
+config.block_size = [30, 40];
+config.wall_size = [100, canvas.height];
+config.wall_gap = 200;
+config.init_block_x = canvas.width * 2 / 5;
+config.free_fall_acceleration = 10;
+config.flap_speed_gain = 300;
+config.frame_rate = 1000 / 60
+config.wall_speed = -70;
+config.wall_hole_size = 200;
+
+game = new Game(canvas, config);
 game.restart();
 
 var old_time = Date.now();
@@ -219,5 +230,4 @@ var mainloop = function () {
   }
 };
 
-var frame_rate = 1000 / 60;
-setInterval(mainloop, frame_rate);
+setInterval(mainloop, game.config.frame_rate);
