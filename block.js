@@ -53,14 +53,14 @@ function Wall (pos, size, color) {
     this.pos[1] += this.vel[1] * dt;
 
     if (this.pos[0] < -100) {
-      this.pos = [gCanvas.width, gCanvas.height];
+      this.pos = [game.canvas.width, game.canvas.height];
       this.hole_position = getRandomInt(0, 200);
     }
   },
   this.draw = function (dt) {
     var drawpos = [this.pos[0], this.pos[1] - this.size[1]];
-    drawRect(gContext, drawpos[0], 0, this.size[0], this.hole_position, this.color);
-    drawRect(gContext, drawpos[0], this.hole_position + 200, this.size[0], this.size[1], this.color);
+    drawRect(game.context, drawpos[0], 0, this.size[0], this.hole_position, this.color);
+    drawRect(game.context, drawpos[0], this.hole_position + 200, this.size[0], this.size[1], this.color);
   },
   this.snapback = snapback
 }
@@ -75,15 +75,15 @@ function Block (pos, size, color) {
     this.size[0] = this.snapback(this.originalsize[0], this.size[0]);
     this.size[1] = this.snapback(this.originalsize[1], this.size[1]);
 
-    if (this.pos[1] < gCanvas.height) {
+    if (this.pos[1] < game.canvas.height) {
       this.vel[1] += 10;
     }
 
     this.pos[0] += this.vel[0] * dt;
     this.pos[1] += this.vel[1] * dt;
 
-    if (this.pos[1] > gCanvas.height) {
-      this.pos[1] = gCanvas.height;
+    if (this.pos[1] > game.canvas.height) {
+      this.pos[1] = game.canvas.height;
       this.vel[1] = 0;
       this.squish();
     }
@@ -96,7 +96,7 @@ function Block (pos, size, color) {
   },
   this.draw = function (dt) {
     var drawpos = [this.pos[0], this.pos[1] - this.size[1]];
-    drawRect(gContext, drawpos[0], drawpos[1], this.size[0], this.size[1], this.color);
+    drawRect(game.context, drawpos[0], drawpos[1], this.size[0], this.size[1], this.color);
   },
   this.squish = function () {
     this.size = [this.size[0] * 1.5, this.size[1] * 0.5];
@@ -104,19 +104,21 @@ function Block (pos, size, color) {
   this.snapback = snapback
 }
 
-function Game() {
+function Game(canvas) {
+  this.canvas = canvas,
+  this.context = this.canvas.getContext('2d'),
   this.stop_time = false,
   this.enter_wall = [],
   this.walls_count = 0,
   this.initBlock = function() {
-    var pos = [gCanvas.width * 2 / 5, gCanvas.height * Math.random()];
+    var pos = [this.canvas.width * 2 / 5, this.canvas.height * Math.random()];
     var size = [30, 40];
     return new Block(pos, size, 'red');
   },
   this.gBlock = this.initBlock(),
   this.initWall = function(shift) {
-    var pos = [gCanvas.width + shift, gCanvas.height];
-    var size = [100, gCanvas.height];
+    var pos = [this.canvas.width + shift, this.canvas.height];
+    var size = [100, this.canvas.height];
     var wall = new Wall(pos, size, 'green');
     return wall;
   },
@@ -130,7 +132,7 @@ function Game() {
   },
   this.gWalls = this.initWalls(),
   this.restart = function() {
-    gContext.clearRect(0, 0, gCanvas.width, gCanvas.height);
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.stop_time = false;
     this.walls_count = 0;
     setCounter(0);
@@ -138,8 +140,8 @@ function Game() {
     this.gWalls = this.initWalls();
   },
   this.draw = function() {
-    gContext.fillStyle = "black";
-    gContext.fillRect(0, 0, gCanvas.width, gCanvas.height);
+    this.context.fillStyle = "black";
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     if (this.gWalls) {
       this.gWalls.draw();
@@ -191,18 +193,16 @@ function Game() {
   }
 }
 
+function flapBlock() {
+  game.gBlock["vel"][1] -= 300;
+}
+
 var body = document.getElementsByTagName("body")[0];
-body.addEventListener('mousedown', function () {
-  game.gBlock["vel"][1] -= 300;
-}, false);
+body.addEventListener('mousedown', flapBlock, false);
+body.addEventListener('touchstart', flapBlock, false);
 
-body.addEventListener('touchstart', function () {
-  game.gBlock["vel"][1] -= 300;
-}, false);
-
-var gCanvas = document.getElementById('gamecanvas');
-var gContext = gCanvas.getContext('2d');
-game = new Game();
+var canvas = document.getElementById('gamecanvas');
+game = new Game(canvas);
 game.restart();
 
 var old_time = Date.now();
