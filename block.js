@@ -75,37 +75,40 @@ function Block (pos, size, color) {
   this.color = color,
   this.vel = [0, 0],
   this.originalsize = size,
-  this.update = function (dt) {
-    this.size[0] = this.snapback(this.originalsize[0], this.size[0]);
-    this.size[1] = this.snapback(this.originalsize[1], this.size[1]);
-
-    if (this.pos[1] < game.canvas.height) {
-      this.vel[1] += game.config.free_fall_acceleration;
-    }
-
-    this.pos[0] += this.vel[0] * dt;
-    this.pos[1] += this.vel[1] * dt;
-
-    if (this.pos[1] > game.canvas.height) {
-      this.pos[1] = game.canvas.height;
-      this.vel[1] = 0;
-      this.squish();
-    }
-
-    if (this.pos[1] < 0) {
-      this.pos[1] = 0;
-      this.vel[1] = 0;
-      this.squish();
-    }
-  },
-  this.draw = function (dt) {
-    var drawpos = [this.pos[0], this.pos[1] - this.size[1]];
-    drawRect(game.context, drawpos[0], drawpos[1], this.size[0], this.size[1], this.color);
-  },
-  this.squish = function () {
-    this.size = [this.size[0] * 1.5, this.size[1] * 0.5];
-  },
   this.snapback = snapback
+}
+
+Block.prototype.update = function (dt) {
+  this.size[0] = this.snapback(this.originalsize[0], this.size[0]);
+  this.size[1] = this.snapback(this.originalsize[1], this.size[1]);
+
+  if (this.pos[1] < game.canvas.height) {
+    this.vel[1] += game.config.free_fall_acceleration;
+  }
+
+  this.pos[0] += this.vel[0] * dt;
+  this.pos[1] += this.vel[1] * dt;
+
+  if (this.pos[1] > game.canvas.height) {
+    this.pos[1] = game.canvas.height;
+    this.vel[1] = 0;
+    this.squish();
+  }
+
+  if (this.pos[1] < 0) {
+    this.pos[1] = 0;
+    this.vel[1] = 0;
+    this.squish();
+  }
+}
+
+Block.prototype.draw = function (dt) {
+  var drawpos = [this.pos[0], this.pos[1] - this.size[1]];
+  drawRect(game.context, drawpos[0], drawpos[1], this.size[0], this.size[1], this.color);
+}
+
+Block.prototype.squish = function () {
+  this.size = [this.size[0] * 1.5, this.size[1] * 0.5];
 }
 
 function Game(canvas, config) {
