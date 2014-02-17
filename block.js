@@ -25,7 +25,7 @@ function snapback(original, current) {
 }
 
 function Walls(walls) {
-  this.walls = walls
+  this.walls = walls;
 }
 
 Walls.prototype.update = function (dt) {
@@ -41,13 +41,13 @@ Walls.prototype.draw = function (dt) {
 }
 
 function Wall (pos, size, color, speed) {
-  this.pos = pos,
-  this.size = size,
-  this.hole_position = getRandomInt(20, 200),
-  this.color = color,
-  this.vel = [speed, 0],
-  this.originalsize = size,
-  this.snapback = snapback
+  this.pos = pos;
+  this.size = size;
+  this.hole_position = getRandomInt(20, 200);
+  this.color = color;
+  this.vel = [speed, 0];
+  this.originalsize = size;
+  this.snapback = snapback;
 }
 
 Wall.prototype.update = function (dt) {
@@ -70,12 +70,12 @@ Wall.prototype.draw = function (dt) {
 }
 
 function Block (pos, size, color) {
-  this.pos = pos,
-  this.size = size,
-  this.color = color,
-  this.vel = [0, 0],
-  this.originalsize = size,
-  this.snapback = snapback
+  this.pos = pos;
+  this.size = size;
+  this.color = color;
+  this.vel = [0, 0];
+  this.originalsize = size;
+  this.snapback = snapback;
 }
 
 Block.prototype.update = function (dt) {
@@ -112,14 +112,14 @@ Block.prototype.squish = function () {
 }
 
 function Game(canvas, config) {
-  this.canvas = canvas,
-  this.config = config,
-  this.context = this.canvas.getContext('2d'),
-  this.stop_time = false,
-  this.enter_wall = [],
-  this.walls_count = 0,
-  this.gBlock = this.initBlock(),
-  this.gWalls = this.initWalls()
+  this.canvas = canvas;
+  this.config = config;
+  this.context = this.canvas.getContext('2d');
+  this.stop_time = false;
+  this.enter_wall = [];
+  this.walls_count = 0;
+  this.gBlock = this.initBlock();
+  this.gWalls = this.initWalls();
 }
 
 Game.prototype.initBlock = function() {
@@ -167,11 +167,8 @@ Game.prototype.draw = function() {
 }
 
 Game.prototype.checkCollision = function() {
-  var wall_index = 0;
   var that = this;
-  this.gWalls.walls.forEach(function (wall) {
-    wall_index++;
-
+  this.gWalls.walls.forEach(function (wall, wall_index) {
     if (that.gBlock.pos[0] + that.gBlock.size[0] > wall.pos[0] && wall.pos[0] + wall.size[0] > that.gBlock.pos[0]) {
       if (wall.hole_position < that.gBlock.pos[1] - that.gBlock.size[1] && that.gBlock.pos[1] < wall.hole_position + 200) {
         that.enter_wall[wall_index] = true;
