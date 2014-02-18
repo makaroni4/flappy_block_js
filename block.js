@@ -72,13 +72,13 @@ function Wall (pos, size, color, speed) {
   this.hole_position = getRandomInt(20, 200);
   this.color = color;
   this.vel = [speed, 0];
-  this.originalsize = size;
+  this.original_size = size;
   this.snapback = snapback;
 }
 
 Wall.prototype.update = function (dt) {
-  this.size[0] = this.snapback(this.originalsize[0], this.size[0]);
-  this.size[1] = this.snapback(this.originalsize[1], this.size[1]);
+  this.size[0] = this.snapback(this.original_size[0], this.size[0]);
+  this.size[1] = this.snapback(this.original_size[1], this.size[1]);
 
   this.pos[0] += this.vel[0] * dt;
   this.pos[1] += this.vel[1] * dt;
@@ -100,13 +100,13 @@ function Block (pos, size, color) {
   this.size = size;
   this.color = color;
   this.vel = [0, 0];
-  this.originalsize = size;
+  this.original_size = size;
   this.snapback = snapback;
 }
 
 Block.prototype.update = function (dt) {
-  this.size[0] = this.snapback(this.originalsize[0], this.size[0]);
-  this.size[1] = this.snapback(this.originalsize[1], this.size[1]);
+  this.size[0] = this.snapback(this.original_size[0], this.size[0]);
+  this.size[1] = this.snapback(this.original_size[1], this.size[1]);
 
   if (this.pos[1] < game.canvas.height) {
     this.vel[1] += game.config.free_fall_acceleration;
