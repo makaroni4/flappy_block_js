@@ -208,9 +208,8 @@ function flapBlock() {
   game.gBlock["vel"][1] -= game.config.flap_speed_gain;
 }
 
-var body = document.getElementsByTagName("body")[0];
-body.addEventListener('mousedown', flapBlock, false);
-body.addEventListener('touchstart', flapBlock, false);
+document.body.addEventListener('mousedown', flapBlock, false);
+document.body.addEventListener('touchstart', flapBlock, false);
 
 var canvas = document.getElementById('gamecanvas');
 var config = {};
