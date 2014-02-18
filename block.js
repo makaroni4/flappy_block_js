@@ -1,3 +1,29 @@
+// https://gist.github.com/paulirish/1579671
+(function() {
+  var lastTime = 0;
+  var vendors = ['webkit', 'moz'];
+  for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+    window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+    window.cancelAnimationFrame =
+      window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+  }
+
+  if (!window.requestAnimationFrame)
+    window.requestAnimationFrame = function(callback, element) {
+      var currTime = new Date().getTime();
+      var timeToCall = config.frame_rate;
+      var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+        timeToCall);
+      lastTime = currTime + timeToCall;
+      return id;
+    };
+
+  if (!window.cancelAnimationFrame)
+    window.cancelAnimationFrame = function(id) {
+        clearTimeout(id);
+    };
+}());
+
 function drawRect(context, x, y, width, height, color) {
   context.fillStyle = color;
   context.fillRect(x, y, width, height);
@@ -229,7 +255,7 @@ game.restart();
 var old_time = Date.now();
 var gNewTime = null;
 
-var mainloop = function () {
+var gameloop = function () {
   new_time = Date.now();
   dt = (new_time - old_time) / 1000;
   old_time = new_time;
@@ -240,4 +266,7 @@ var mainloop = function () {
   }
 };
 
-setInterval(mainloop, game.config.frame_rate);
+(function animatino_loop(){
+  requestAnimationFrame(animatino_loop);
+  gameloop();
+})();
