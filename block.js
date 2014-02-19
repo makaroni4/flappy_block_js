@@ -24,6 +24,36 @@
     };
 }());
 
+// Array.prototype.findIndex - MIT License (c) 2013 Paul Miller <http://paulmillr.com>
+// For all details and docs: <https://github.com/paulmillr/Array.prototype.findIndex>
+(function(globals){
+  var findIndex = function(predicate) {
+    var list = Object(this);
+    var length = list.length >>> 0; // ES.ToUint32;
+    if (length === 0) return -1;
+    if (typeof predicate !== 'function') {
+      throw new TypeError('Array#findIndex: predicate must be a function');
+    }
+    var thisArg = arguments.length > 1 ? arguments[1] : undefined;
+    for (var i = 0; i < length && i in list; i++) {
+      if (predicate.call(thisArg, list[i], i, list)) return i;
+    }
+    return -1;
+  };
+
+  if (Object.defineProperty) {
+    try {
+      Object.defineProperty(Array.prototype, 'findIndex', {
+        value: findIndex, configurable: true, writable: true
+      });
+    } catch(e) {}
+  }
+
+  if (!Array.prototype.findIndex) {
+    Array.prototype.findIndex = findIndex;
+  }
+})(this);
+
 function drawRect(context, x, y, width, height, color) {
   context.fillStyle = color;
   context.fillRect(x, y, width, height);
@@ -144,6 +174,7 @@ function Game(canvas, config) {
   this.stop_time = false;
   this.enter_wall = [];
   this.walls_count = 0;
+  this.current_wall_index = -1;
   this.block = this.initBlock();
   this.walls = this.initWalls();
 }
@@ -176,6 +207,7 @@ Game.prototype.restart = function() {
   this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   this.stop_time = false;
   this.walls_count = 0;
+  this.current_wall_index = -1;
   setCounter(0);
   this.enter_wall = [];
   this.walls = this.initWalls();
@@ -201,29 +233,33 @@ Game.prototype.askToPlayAgain = function() {
   }
 }
 
-Game.prototype.checkCollision = function() {
+Game.prototype.currentWall = function() {
   var that = this;
-  return this.walls.walls.some(function (wall, wall_index) {
-    if (that.block.pos[0] + that.block.size[0] > wall.pos[0] && wall.pos[0] + wall.size[0] > that.block.pos[0]) {
-      if (wall.hole_position < that.block.pos[1] - that.block.size[1] && that.block.pos[1] < wall.hole_position + 200) {
-        that.enter_wall[wall_index] = true;
-      } else {
-        return true;
-      }
-    } else {
-      if (that.enter_wall[wall_index]) {
-        that.walls_count++;
-        that.enter_wall[wall_index] = false;
-      }
-    }
+  return this.walls.walls.findIndex(function (wall) {
+     return that.block.pos[0] + that.block.size[0] > wall.pos[0] && wall.pos[0] + wall.size[0] > that.block.pos[0];
   });
+}
+
+Game.prototype.checkCollision = function(wall_index) {
+  var wall = this.walls.walls[wall_index];
+  return !(wall.hole_position < this.block.pos[1] - this.block.size[1] &&
+    this.block.pos[1] < wall.hole_position + 200);
+}
+
+Game.prototype.checkWallPassed = function() {
+  var wall_index = this.currentWall();
+  if(wall_index > -1 && this.current_wall_index != wall_index) {
+    this.walls_count++;
+  }
+  this.current_wall_index = wall_index;
 }
 
 Game.prototype.update = function() {
   this.walls.update(dt);
   this.block.update(dt);
+  this.checkWallPassed();
 
-  if(this.checkCollision()) {
+  if(this.current_wall_index > -1 && this.checkCollision(this.current_wall_index)) {
     this.stop_time = true;
     this.askToPlayAgain();
   }
@@ -241,14 +277,16 @@ document.body.addEventListener('touchstart', flapBlock, false);
 var canvas = document.getElementById('gamecanvas');
 var config = {};
 config.block_size = [30, 40];
+config.init_block_x = canvas.width * 2 / 5;
+
 config.wall_size = [100, canvas.height];
 config.wall_gap = 200;
-config.init_block_x = canvas.width * 2 / 5;
+config.wall_speed = -70;
+config.wall_hole_size = 200;
+
 config.free_fall_acceleration = 10;
 config.flap_speed_gain = 300;
 config.frame_rate = 1000 / 60
-config.wall_speed = -70;
-config.wall_hole_size = 200;
 
 game = new Game(canvas, config);
 game.restart();
