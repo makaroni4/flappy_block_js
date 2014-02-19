@@ -163,6 +163,8 @@ Game.prototype.initWall = function(shift) {
 
 Game.prototype.initWalls = function() {
   var wallsArray = [];
+  // TODO there should not be 4
+  // it is a function of window width and wall width
   for (var i = 0; i < 4; i++) {
     wallsArray.push(this.initWall(i * this.config.wall_gap));
   }
@@ -192,26 +194,24 @@ Game.prototype.draw = function() {
   }
 }
 
+Game.prototype.askToPlayAgain = function() {
+  var answer = confirm("You passed " + this.walls_count + " walls! Play again?");
+  if (answer) {
+    game.restart();
+  }
+}
+
 Game.prototype.checkCollision = function() {
   var that = this;
-  this.gWalls.walls.forEach(function (wall, wall_index) {
+  return this.gWalls.walls.some(function (wall, wall_index) {
     if (that.gBlock.pos[0] + that.gBlock.size[0] > wall.pos[0] && wall.pos[0] + wall.size[0] > that.gBlock.pos[0]) {
       if (wall.hole_position < that.gBlock.pos[1] - that.gBlock.size[1] && that.gBlock.pos[1] < wall.hole_position + 200) {
         that.enter_wall[wall_index] = true;
       } else {
         that.stop_time = true;
 
-        var r = confirm("You passed " + that.walls_count + " walls! Play again?");
-        if (r == true) {
-            game.restart();
-        } else {
-            x = "Thank you for playing!";
-        }
-
         return true;
       }
-
-
     } else {
       if (that.enter_wall[wall_index]) {
         that.walls_count++;
@@ -219,15 +219,16 @@ Game.prototype.checkCollision = function() {
         that.enter_wall[wall_index] = false;
       }
     }
-  })
-
-  return false;
+  });
 }
 
 Game.prototype.update = function() {
   this.gWalls.update(dt);
   this.gBlock.update(dt);
-  this.checkCollision();
+
+  if(this.checkCollision()) {
+    this.askToPlayAgain();
+  }
 }
 
 function flapBlock() {
