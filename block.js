@@ -208,14 +208,11 @@ Game.prototype.checkCollision = function() {
       if (wall.hole_position < that.gBlock.pos[1] - that.gBlock.size[1] && that.gBlock.pos[1] < wall.hole_position + 200) {
         that.enter_wall[wall_index] = true;
       } else {
-        that.stop_time = true;
-
         return true;
       }
     } else {
       if (that.enter_wall[wall_index]) {
         that.walls_count++;
-        setCounter(that.walls_count);
         that.enter_wall[wall_index] = false;
       }
     }
@@ -227,8 +224,11 @@ Game.prototype.update = function() {
   this.gBlock.update(dt);
 
   if(this.checkCollision()) {
+    this.stop_time = true;
     this.askToPlayAgain();
   }
+
+  setCounter(this.walls_count);
 }
 
 function flapBlock() {
