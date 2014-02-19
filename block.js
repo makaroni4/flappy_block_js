@@ -144,8 +144,8 @@ function Game(canvas, config) {
   this.stop_time = false;
   this.enter_wall = [];
   this.walls_count = 0;
-  this.gBlock = this.initBlock();
-  this.gWalls = this.initWalls();
+  this.block = this.initBlock();
+  this.walls = this.initWalls();
 }
 
 Game.prototype.initBlock = function() {
@@ -168,7 +168,7 @@ Game.prototype.initWalls = function() {
   for (var i = 0; i < 4; i++) {
     wallsArray.push(this.initWall(i * this.config.wall_gap));
   }
-  this.gBlock = this.initBlock();
+  this.block = this.initBlock();
   return new Walls(wallsArray);
 }
 
@@ -178,19 +178,19 @@ Game.prototype.restart = function() {
   this.walls_count = 0;
   setCounter(0);
   this.enter_wall = [];
-  this.gWalls = this.initWalls();
+  this.walls = this.initWalls();
 }
 
 Game.prototype.draw = function() {
   this.context.fillStyle = "black";
   this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-  if (this.gWalls) {
-    this.gWalls.draw();
+  if (this.walls) {
+    this.walls.draw();
   }
 
-  if (this.gBlock) {
-    this.gBlock.draw();
+  if (this.block) {
+    this.block.draw();
   }
 }
 
@@ -203,9 +203,9 @@ Game.prototype.askToPlayAgain = function() {
 
 Game.prototype.checkCollision = function() {
   var that = this;
-  return this.gWalls.walls.some(function (wall, wall_index) {
-    if (that.gBlock.pos[0] + that.gBlock.size[0] > wall.pos[0] && wall.pos[0] + wall.size[0] > that.gBlock.pos[0]) {
-      if (wall.hole_position < that.gBlock.pos[1] - that.gBlock.size[1] && that.gBlock.pos[1] < wall.hole_position + 200) {
+  return this.walls.walls.some(function (wall, wall_index) {
+    if (that.block.pos[0] + that.block.size[0] > wall.pos[0] && wall.pos[0] + wall.size[0] > that.block.pos[0]) {
+      if (wall.hole_position < that.block.pos[1] - that.block.size[1] && that.block.pos[1] < wall.hole_position + 200) {
         that.enter_wall[wall_index] = true;
       } else {
         return true;
@@ -220,8 +220,8 @@ Game.prototype.checkCollision = function() {
 }
 
 Game.prototype.update = function() {
-  this.gWalls.update(dt);
-  this.gBlock.update(dt);
+  this.walls.update(dt);
+  this.block.update(dt);
 
   if(this.checkCollision()) {
     this.stop_time = true;
@@ -232,7 +232,7 @@ Game.prototype.update = function() {
 }
 
 function flapBlock() {
-  game.gBlock["vel"][1] -= game.config.flap_speed_gain;
+  game.block["vel"][1] -= game.config.flap_speed_gain;
 }
 
 document.body.addEventListener('mousedown', flapBlock, false);
